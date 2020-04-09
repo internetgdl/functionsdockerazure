@@ -126,6 +126,21 @@ az acr login --name $acr --username $acrusername  --password $acrpassword
 We can see all the resources on azure portal
 <image>
 
+Before that we'll build the Docker , lets define the connection string of the storage in that we had create the queue
+in azure cli we can acces to the connection string with az storage account keys list
+
+az storage account keys list -g $namegrp -n $storageAccountName
+<image>
+
+and set the connectionstring to the key of our Function in the project in conectionstring format
+
+DefaultEndpointsProtocol=https;AccountName=<FunctionName>;AccountKey=<keyString>;EndpointSuffix=core.windows.net
+
+<image>
+
+And set the correct name of your queue
+
+<image>
 
 Now we'll create the image with the name and version in this case, latest
 $dockerimage = "exampleimage"
@@ -138,6 +153,7 @@ The image was created and we can list with
 
 docker images
 <image>
+
 And run with
 
 docker run $dockerimage+":latest"
