@@ -132,10 +132,12 @@ $dockerimage = "exampleimage"
 $dockerimageversion = $dockerimage+":v0.0.0"
 docker build ./ --tag $dockerimageversion
 
+<image>
+
 The image was created and we can list with
 
 docker images
-
+<image>
 And run with
 
 docker run $dockerimage+":latest"
