@@ -4,7 +4,7 @@ The Azure functions are really powerfull serverless resources, we can create and
 
 In this example I going to show you how to create an Azure Function on Microsoft Azure Cloud but, in a Docker Container on Azure Container Registry.
 
-To this example we'll need Azure Cli, Azure Functions Cli, our Azure Account and Docker installed in our computer.
+To this example we'll need Azure Cli, Azure Functions Cli, our Azure Account and Docker installed in our computer and .Net Core 3.1 SDK
 
 
 We can donwload the Azure cli from: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
@@ -28,6 +28,9 @@ Once Docker are already installed we can validate the instalation using out term
 
 docker ---version
 
+For the .Net Core SDK 3.1 the url to download it is:
+
+https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.201-windows-x64-installer
 
 Ok, I assume that you are ready with the installations.
 
@@ -126,10 +129,16 @@ We can see all the resources on azure portal
 
 Now we'll create the image with the name and version in this case, latest
 $dockerimage = "exampleimage"
-$dockerimageversion = $dockerimage+":latest"
+$dockerimageversion = $dockerimage+":v0.0.0"
 docker build ./ --tag $dockerimageversion
 
+The image was created and we can list with
 
+docker images
+
+And run with
+
+docker run $dockerimage+":latest"
 
 once that we have a docker image we have to make push 
 

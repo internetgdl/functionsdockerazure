@@ -32,7 +32,7 @@ $functionplanname = "examplefunctionplan"
 $numworkers = 1
 $appfunction = "examplefunction"
 $dockerimage = "exampleimage"
-$dockerimageversion = $dockerimage+":latest"
+$dockerimageversion = $dockerimage+":v0.0.0"
 $webhookname = "examplewebhook"
 
 
