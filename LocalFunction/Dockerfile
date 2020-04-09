@@ -10,5 +10,8 @@ RUN cd /src/dotnet-function-app && \
 FROM mcr.microsoft.com/azure-functions/dotnet:3.0
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
+ENV AzureWebJobsStorage "EndpointsProtocol=https;AccountName=examplestorage127262;AccountKey=nMyvqiJnc0K29a7ffIxlNHtnENzkZ9ExMuz4+j/hnU+fAABpjAXRrn6U6it2vze1NAc0izegg6usxLGUX0yTYQ==;EndpointSuffix=core.windows.net"
+
+
 
 COPY --from=installer-env ["/home/site/wwwroot", "/home/site/wwwroot"]
