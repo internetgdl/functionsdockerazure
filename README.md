@@ -64,7 +64,7 @@ write:
 
     func init LocalFunction --worker-runtime dotnet --docker 
 
-
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/1.png?raw=true)
 
 With the Argument --docker, creates the Dockerfile, that it contains the definition of the resources that we'll need for the imagen that will uploaded to Azure Container Registry 
 
@@ -77,26 +77,36 @@ Now let's create the function using a queue as trigger
 
 the argument template defines the type of trigger in this case "Queue Trigger" 
 
-The function was created. 
+The function was created.
+
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/3.png?raw=true)
 
 To run the function use: 
 
     func start --build 
 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/4.png?raw=true)
 
 Then in the terminal you 'll see how the function is starting up locally in the localhost under the 7071 port
-
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/5.png?raw=true)
 To emulate a new queue you can send the params by POST with curl by example: 
 
 
-    curl --request POST -H "Content-Type:application/json" --data '{"input":"sample queue data"}' http://localhost:7071/admin/functions/QueueTrigger 
+    curl --request POST -H "Content-Type:application/json" --data '{"input":"sample queue data"}' http://localhost:7071/admin/functions/QueueTrigger
+
+
 
 
 In the image you can see how send the message as data on the function called QueueFunction with a simple response 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/6.png?raw=true)
+
+
 
 In the files, the file with the name of the function have the logic of business We'll change the message. 
 
-<image> 
+
+
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/9.png?raw=true)
 
 Let's create resources in your Azure Account. 
 
@@ -104,14 +114,11 @@ First make login to our Azure Account with:
 
     az login 
 
-
 It will prompt a window in our predetermined browser to make login in out Azure Account 
 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/10.png?raw=true)
 
-<image> 
-
-
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/11.png?raw=true)
 
 
 Create the resource Group 
@@ -122,8 +129,8 @@ Create the resource Group
 	$location = "westus" 
 	az group create --name $namegrp --location $location 
 
-<image> 
 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/12.png?raw=true)
 
 
 Create Storage 
@@ -133,7 +140,7 @@ Create Storage
 	$skuName = "Standard_LRS" 
 	az storage account create --name $storageAccountName -g $namegrp --sku $skuName 
 
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/13.png?raw=true)
 
 
 Get keys 
@@ -141,11 +148,11 @@ Get keys
 	$key=$(az storage account keys list --account-name $storageAccountName --query [0].value -o tsv) 
 
 
-
 Create the Queue 
 
 	$queueName = "examplequeue" 
 	az storage queue create --name $queueName --account-key $key --account-name $storageAccountName 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/14.png?raw=true)
 
 
 Create container service for Docker Images 
@@ -156,39 +163,38 @@ Create container service for Docker Images
     az acr update --name $acr --admin-enabled true 
     $acrusername = az acr credential show -n $acr --query username 
     $acrpassword = az acr credential show -n $acr --query passwords[0].value 
-
-
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/15.png?raw=true)
 
 The next line 'll do Handshake between your computer and Azure Container Registry ACR to make push of the image  
 
 
 	az acr login --name $acr --username $acrusername --password $acrpassword 
-
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/16.png?raw=true)
 
 
 We can see all the resources on Azure Portal 
 
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/17.png?raw=true)
 
 
 Now we'll build the Docker Image, let's define the connection string of the storage in that we had create the queue 
 
-in Azure CLI we can access to the connection string and save to a var with: 
+in Azure CLI we can access to the connection string and save it to a var with: 
 
 
     $connectionstring = az storage account show-connection-string --resource-group $nameGrp --name
 	$storageName --query connectionString --output tsv 
     $connectionstring 
 
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/30.png?raw=true)
 
-and set the connection string to our Function in the project. 
+and set the connection string to our localsettings.json file in the project. 
 
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/23.png?raw=true)
 
-Set the correct name of your queue 
+Set the correct name of your queue and the variable assigned to connection.
 
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/22.png?raw=true)
 
 Now we'll create the image with the name and version, in this case, "latest" 
 
@@ -199,20 +205,21 @@ Now we'll create the image with the name and version, in this case, "latest"
     docker build ./ --tag $dockerimageversion 
 
 
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/18.png?raw=true)
+
 
 The image was created, and we can list with 
 
     docker images 
 
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/20.png?raw=true)
 
 Run with 
 
 	docker run $dockerimage+":latest" 
 
 
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/24.png?raw=true)
 
 Once that we have a Docker Image, we must make push and create a tag with the URL of container, that is the name of the container with azurecr.io 
 
@@ -222,10 +229,7 @@ Once that we have a Docker Image, we must make push and create a tag with the UR
 	docker push $acrlogin/$dockerimageversion 
 
 
-<image> 
-
- 
- 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/25.png?raw=true)
 
 List all repositories 
 
@@ -235,7 +239,7 @@ List all repositories
 or we can see through the Azure Portal 
 
 
-<image> 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/26.png?raw=true)
 
 
 Create Function Plan in Azure Account, it must be on demand  
@@ -249,14 +253,15 @@ Create Function Plan in Azure Account, it must be on demand
 	$webhookname = "examplewebhook" 
 	az functionapp plan create --resource-group $nameGrp --name $functionplanname --location $location --number-of-workers $numworkers --sku $appplansku $linux 
 
-<image>
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/28.png?raw=true)
+
 
 Create Linux Function 
 
 	az functionapp create --name $appfunction --storage-account $storageAccountName --resource-group $nameGrp --plan $functionplanname --deployment-container-image-name $acrlogin/$dockerimagename # --app-insights $appinsightskey 
 
 
-<image>
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/29.png?raw=true)
 
 
 Attach the connection string to the configuration of function. 
@@ -264,7 +269,7 @@ Attach the connection string to the configuration of function.
 	az functionapp config appsettings set --name $appfunction --resource-group $nameGrp --settings AzureWebJobsStorage=$connectionstring 
 
 
-<image>
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/31.png?raw=true)
 
 
 Enable continuous integration and get the Hook URL 
@@ -278,23 +283,28 @@ Create webhook to the container registry making push for all versions
 	az acr webhook create -n $webhookname -r $acr --uri $hookurl --scope $dockerimageallversion --actions push delete 
 
 
-<image>
 
 The image was created we can validate over the Azure Portal 
 
-<image>
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/32.png?raw=true)
 
 And the Continuous Integration was created with the webhook 
 
 We can see the publish of this in the function in portal 
 
-<image>
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/34.png?raw=true)
 
-To view the function working we can open the function monitor in another window and send a message to the message's queues. 
+The function in Azure Portal
 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/36.png?raw=true)
 
-<image>
+To view the function working we can open the Queue and send a message to the message's queues. 
 
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/38.png?raw=true)
+
+In other windows we can see the function monitor.
+
+![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/42.png?raw=true)
 
 In this example, we saw how to create an Azure function using the Azure function tools in the terminal of our computer with Docker support, modifying the project with Visual Studio Code to connect the function with our queue and create all the resources in our Azure account. 
 
@@ -307,15 +317,15 @@ After creating a Linux Azure function, we create a Webhook to pull the image fro
 So if you have any questions please feel free to contact me. 
 
 
-:fa-envelope-square: eduardo@eduardo.mx 
+Email: eduardo@eduardo.mx 
 
-:fa-link: [eduardo.mx](http://eduardo.mx "eduardo.mx")
+Web: [eduardo.mx](http://eduardo.mx "eduardo.mx")
 
-:fa-twitter: [internetgdl](https://twitter.com/internetgdl "internetgdl")
+Twitter: [internetgdl](https://twitter.com/internetgdl "internetgdl")
 
-:fa-linkedin-square:  [https://www.linkedin.com/in/luis-eduardo-estrada/ ](https://www.linkedin.com/in/luis-eduardo-estrada/  "https://www.linkedin.com/in/luis-eduardo-estrada/ ")
+LinkedIn:  [https://www.linkedin.com/in/luis-eduardo-estrada/ ](https://www.linkedin.com/in/luis-eduardo-estrada/  "https://www.linkedin.com/in/luis-eduardo-estrada/ ")
 
-:fa-github-alt: [internetgdl](https://github.com/internetgdl "internetgdl")
+GitHub: [internetgdl](https://github.com/internetgdl "internetgdl")
  
 
 Notes: for reference the complete script is in this project under the file: [initProject.ps1](https://github.com/internetgdl/functionsdockerazure/blob/master/initProject.ps1 "initProject.ps1")
