@@ -1,4 +1,4 @@
-# Azure features with Docker support, using a storage queue 
+# Azure Functions with Docker support in Linux, using a storage queue as trigger
 
 
 Azure features are powerful serverless resources, we can create and debug locally, upload to cloud, monitor usage, exceptions and pay only for usage 
