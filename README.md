@@ -7,7 +7,7 @@ Azure features are powerful serverless resources, we can create and debug locall
  ![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/logo.png?raw=true)
 
 
-In this example, I will show you how to create Azure role in Microsoft Azure Cloud but in Docker Container in Azure Container Registry. 
+In this example, I will show you how to create Azure Function in Microsoft Azure on a Docker Container in Azure Container Registry. 
 
 
 For this example, we will need Visual Studio Code, Azure CLI, Azure Functions CLI, our Azure account and Docker installed on our computer and .Net Core 3.1 SDK 
