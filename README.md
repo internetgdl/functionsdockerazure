@@ -1,7 +1,7 @@
 # Azure Functions with Docker support in Linux, using a storage queue as trigger
 
 
-Azure features are powerful serverless resources, we can create and debug locally, upload to cloud, monitor usage, exceptions and pay only for usage 
+Azure functions are powerful serverless resources, we can create and debug locally, upload to cloud, monitor usage, exceptions and pay only for usage 
 
  
  ![](https://github.com/internetgdl/functionsdockerazure/blob/master/images/logo.png?raw=true)
