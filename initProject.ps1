@@ -10,7 +10,7 @@ func new --name QueueFunction --template "Queue trigger"
 
 #Create Resources on Azure
 
-$nameEnvironment = "gral"
+$nameEnvironment = "examplefunc"
 $nameGrp = "group"
 
 # Ubicación de los recursos
@@ -30,9 +30,9 @@ $acrsku = "Basic"
 $linux = "--is-linux"
 $functionplanname = "examplefunctionplan"
 $numworkers = 1
-$appfunction = "examplefunction"
+$appfunction = "examplefunction127262"
 $dockerimage = "exampleimage"
-$dockerimageversion = $dockerimage+":v0.0.0"
+$dockerimageversion = $dockerimage+":latest"
 $webhookname = "examplewebhook"
 
 

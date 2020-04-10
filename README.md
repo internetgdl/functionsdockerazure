@@ -1,205 +1,323 @@
-Azure Functions with Docker using a Storage Queue
-
-The Azure functions are really powerfull serverless resources, we can create and debug locally, upload yo cloud, monitor the use, the excepcions and pay only for the use
-
-In this example I going to show you how to create an Azure Function on Microsoft Azure Cloud but, in a Docker Container on Azure Container Registry.
-
-To this example we'll need Azure Cli, Azure Functions Cli, our Azure Account and Docker installed in our computer and .Net Core 3.1 SDK
+#Azure features with Docker support, using a storage queue 
 
 
-We can donwload the Azure cli from: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
+Azure features are powerful serverless resources, we can create and debug locally, upload to cloud, monitor usage, exceptions and pay only for usage 
 
-I recomend you using brew, if it is the case the follow lines intall azure tools
+ 
+ 
 
-brew update && brew install azure-cli
+In this example, I will show you how to create Azure role in Microsoft Azure Cloud but in Docker Container in Azure Container Registry. 
 
-To install The Azure Functions Tools the page is: https://github.com/Azure/azure-functions-core-tools
 
-Using brew the lines to the version 3 of azure functions is
+For this example, we will need Visual Studio Code, Azure CLI, Azure Functions CLI, our Azure account and Docker installed on our computer and .Net Core 3.1 SDK 
 
-brew tap azure/functions
-brew install azure-functions-core-tools@3
 
-in windows you can install with npm or choco, in the last page you'll get more informacion abut this.
+We can download the Azure cli from: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest 
 
-For Docker we can download from: https://www.docker.com/get-started
 
-Once Docker are already installed we can validate the instalation using out terminal and typing 
+I recommend you use brew, if it is the case, use the follow lines to install Azure Tools 
 
-docker ---version
+    brew update && brew install azure-cli 
 
-For the .Net Core SDK 3.1 the url to download it is:
+To install The Azure Functions Tools the page is: https://github.com/Azure/azure-functions-core-tools 
 
-https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.201-windows-x64-installer
+Using Brew, the lines to the version 3 of Azure Functions is 
 
-Ok, I assume that you are ready with the installations.
+    brew tap azure/functions 
+    brew install azure-functions-core-tools@3 
 
-Firts one.
 
-We goint to create the resurces locally.
 
-1.- create a folder on your computer when you'll place the function
+In Windows you can install with npm or choco, in the last page you'll get more information about this. 
 
-mkdir function 
-cd function 
 
-Now with the terminal using the azure functions tools
+For Docker we can download from: https://www.docker.com/get-started 
 
-write:
 
-func init LocalFunction --worker-runtime dotnet --docker
+Once Docker are already installed, we can validate the installation using out terminal and typing  
 
-With the Argument --docker it creates the Dockerfile, that it contains the definition of the resources that we'll need for the imagen that be'll uploaded to Azure Container Registry
+    docker ---version 
 
-Now lets create the function using a queue as trigger
 
-func new --name QueueFunction --template "Queue trigger"
+For the .Net Core SDK 3.1 the URL to download it is: 
 
-the argument template defines the type of trigger
 
-The function was created.
 
-To run the function use:
+https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.201-windows-x64-installer 
 
-func start --build
 
-Then in the terminal you 'll see how h function is starting up locally in the locslhost under the 7071 port
 
-To emulate a new queue yo can send the params by POST with curl by example:
+Ok, I assume that you are ready with the installations. 
 
-curl --request POST -H "Content-Type:application/json" --data '{"input":"sample queue data"}' http://localhost:7071/admin/functions/QueueTrigger
 
-in the image you can see how send the message as data on the function called QueueFunction with a simple response
+We going to create the resources locally. 
 
-In the files, the file with the name of the fuction have the logic of the data,  ll change the message
+
+1.- Create a folder on your computer in this case with PowerShell 
+
+    mkdir function  
+    cd function  
+
+Now let's create the Azure Functions with the Azure Functions Tools 
+
+write: 
+
+    func init LocalFunction --worker-runtime dotnet --docker 
+
+
+
+With the Argument --docker, creates the Dockerfile, that it contains the definition of the resources that we'll need for the imagen that will uploaded to Azure Container Registry 
+
+
+Now let's create the function using a queue as trigger 
+
+
+    func new --name QueueFunction --template "Queue trigger" 
+
+
+the argument template defines the type of trigger in this case "Queue Trigger" 
+
+The function was created. 
+
+To run the function use: 
+
+    func start --build 
+
+
+Then in the terminal you 'll see how the function is starting up locally in the localhost under the 7071 port
+
+To emulate a new queue you can send the params by POST with curl by example: 
+
+
+    curl --request POST -H "Content-Type:application/json" --data '{"input":"sample queue data"}' http://localhost:7071/admin/functions/QueueTrigger 
+
+
+In the image you can see how send the message as data on the function called QueueFunction with a simple response 
+
+In the files, the file with the name of the function have the logic of business We'll change the message. 
+
+<image> 
+
+Let's create resources in your Azure Account. 
+
+First make login to our Azure Account with: 
+
+    az login 
+
+
+It will prompt a window in our predetermined browser to make login in out Azure Account 
+
+
+<image> 
+
+
+<image> 
+
+
+Create the resource Group 
+
+	$nameEnvironment = "examplefunc" 
+	$nameGrp = "group" 
+	$nameGrp = $nameEnvironment+"-" + $nameGrp 
+	$location = "westus" 
+	az group create --name $namegrp --location $location 
+
+<image> 
+
+
+
+Create Storage 
+
+
+	$storageAccountName = "examplestorage127262" 
+	$skuName = "Standard_LRS" 
+	az storage account create --name $storageAccountName -g $namegrp --sku $skuName 
+
+<image> 
+
+
+Get keys 
+
+	$key=$(az storage account keys list --account-name $storageAccountName --query [0].value -o tsv) 
+
+
+
+Create the Queue 
+
+	$queueName = "examplequeue" 
+	az storage queue create --name $queueName --account-key $key --account-name $storageAccountName 
+
+
+Create container service for Docker Images 
+
+    $acr = "examplecontainer127262" 
+    $acrsku = "Basic" 
+    az acr create --name $acr --resource-group $nameGrp --sku $acrsku 
+    az acr update --name $acr --admin-enabled true 
+    $acrusername = az acr credential show -n $acr --query username 
+    $acrpassword = az acr credential show -n $acr --query passwords[0].value 
+
+
+
+The next line 'll do Handshake between your computer and Azure Container Registry ACR to make push of the image  
+
+
+	az acr login --name $acr --username $acrusername --password $acrpassword 
+
+
+
+We can see all the resources on Azure Portal 
+
+<image> 
+
+
+Now we'll build the Docker Image, let's define the connection string of the storage in that we had create the queue 
+
+in Azure CLI we can access to the connection string and save to a var with: 
+
+
+    $connectionstring = az storage account show-connection-string --resource-group $nameGrp --name
+	$storageName --query connectionString --output tsv 
+    $connectionstring 
+
+<image> 
+
+and set the connection string to our Function in the project. 
+
+<image> 
+
+Set the correct name of your queue 
+
+<image> 
+
+Now we'll create the image with the name and version, in this case, "latest" 
+
+
+
+    $dockerimage = "exampleimage" 
+    $dockerimageversion = $dockerimage+":v0.0.0" 
+    docker build ./ --tag $dockerimageversion 
+
+
+<image> 
+
+The image was created, and we can list with 
+
+    docker images 
+
+<image> 
+
+Run with 
+
+	docker run $dockerimage+":latest" 
+
+
+<image> 
+
+Once that we have a Docker Image, we must make push and create a tag with the URL of container, that is the name of the container with azurecr.io 
+
+
+	$acrlogin = $acr+".azurecr.io" 
+	docker tag $dockerimageversion $acrlogin/$dockerimageversion 
+	docker push $acrlogin/$dockerimageversion 
+
+
+<image> 
+
+ 
+ 
+
+List all repositories 
+
+    az acr repository list --name $acrlogin/$dockerimage 
+
+
+or we can see through the Azure Portal 
+
+
+<image> 
+
+
+Create Function Plan in Azure Account, it must be on demand  
+
+
+    $appplansku = "B1" 
+    $linux = "--is-linux" 
+    $functionplanname = "examplefunctionplan" 
+    $numworkers = 1 
+    $appfunction = "examplefunction127262" 
+	$webhookname = "examplewebhook" 
+	az functionapp plan create --resource-group $nameGrp --name $functionplanname --location $location --number-of-workers $numworkers --sku $appplansku $linux 
 
 <image>
 
-Lets create resources in our Azure Account
+Create Linux Function 
 
-Login to out Azure Account
-az login
+	az functionapp create --name $appfunction --storage-account $storageAccountName --resource-group $nameGrp --plan $functionplanname --deployment-container-image-name $acrlogin/$dockerimagename # --app-insights $appinsightskey 
 
-It will prompt a windows of out predeterminated browser to make login in out azure account
-
-<image>
 
 <image>
 
 
+Attach the connection string to the configuration of function. 
 
-Create the resource Group
-$nameEnvironment = "examplefunc"
-$nameGrp = "group"
-$nameGrp = $nameEnvironment+"-" + $nameGrp
-$location = "westus"
-az group create --name $namegrp --location $location
+	az functionapp config appsettings set --name $appfunction --resource-group $nameGrp --settings AzureWebJobsStorage=$connectionstring 
 
-<image>
-##CREATE STORAGES
-
-Create the storage
-
-$storageAccountName = "examplestorage127262"
-$skuName = "Standard_LRS"
-az storage account  create --name $storageAccountName -g $namegrp --sku $skuName
-<image>
-Get keys
-$key=$(az storage account keys list --account-name $storageAccountName --query [0].value -o tsv)
-
-Create the Queue
-$queueName = "examplequeue"
-az storage queue create --name $queueName --account-key $key --account-name $storageAccountName
-
-
-Create container service for docker images
-$acr = "examplecontainer127262"
-$acrsku = "Basic"
-az acr create --name $acr --resource-group $nameGrp --sku $acrsku
-az acr update --name $acr --admin-enabled true
-$acrusername = az acr credential show -n $acr --query username
-$acrpassword = az acr credential show -n $acr --query passwords[0].value
-
-#handshake between our computer and azure container registry
-az acr login --name $acr --username $acrusername  --password $acrpassword
-
-We can see all the resources on azure portal
-<image>
-
-Before that we'll build the Docker , lets define the connection string of the storage in that we had create the queue
-in azure cli we can acces to the connection string with az storage account keys list
-
-az storage account keys list -g $namegrp -n $storageAccountName
-<image>
-
-and set the connectionstring to the key of our Function in the project in conectionstring format
-
-DefaultEndpointsProtocol=https;AccountName=<FunctionName>;AccountKey=<keyString>;EndpointSuffix=core.windows.net
 
 <image>
 
-And set the correct name of your queue
+
+Enable continuous integration and get the Hook URL 
+
+
+	$hookurl = az functionapp deployment container config --enable-cd --query CI_CD_URL --output tsv --name $appfunction --resource-group $nameGrp 
+
+Create webhook to the container registry making push for all versions 
+
+	$dockerimageallversion = $dockerimage+":*" 
+	az acr webhook create -n $webhookname -r $acr --uri $hookurl --scope $dockerimageallversion --actions push delete 
+
 
 <image>
 
-Now we'll create the image with the name and version in this case, latest
-$dockerimage = "exampleimage"
-$dockerimageversion = $dockerimage+":v0.0.0"
-docker build ./ --tag $dockerimageversion
+The image was created we can validate over the Azure Portal 
 
 <image>
 
-The image was created and we can list with
+And the Continuous Integration was created with the webhook 
 
-docker images
+We can see the publish of this in the function in portal 
+
 <image>
 
-And run with
-
-docker run $dockerimage+":latest"
-
-once that we have a docker image we have to make push 
-
-We have to tag the image with the url container, that is the name of the container with azurecr.io
-
-$acrlogin = $acr+".azurecr.io"
-docker tag $dockerimageversion $acrlogin/$dockerimageversion
+To view the function working we can open the function monitor in another window and send a message to the message's queues. 
 
 
-docker push $acrlogin/$dockerimageversion
+<image>
 
 
-List all repositories
-az acr repository list --name $acrlogin/$dockerimage
+In this example, we saw how to create an Azure function using the Azure function tools in the terminal of our computer with Docker support, modifying the project with Visual Studio Code to connect the function with our queue and create all the resources in our Azure account. 
+
+We create the Docker image on our computer, perform a test emulating a queue, and then push to the Azure Container Registry. 
 
 
-
-CREATE FUNCTION
-create function plan because it must to be on demand 
-
-$appplansku = "B1"
-
-$linux = "--is-linux"
-$functionplanname = "examplefunctionplan"
-$numworkers = 1
-$appfunction = "examplefunction"
-
-$webhookname = "examplewebhook"
-
-az functionapp plan create --resource-group $nameGrp --name $functionplanname --location $location --number-of-workers $numworkers --sku $appplansku $linux
-#create function and attach to docker
-az functionapp create --name $appfunction --storage-account $storageAccountName --resource-group $nameGrp --plan $functionplanname --deployment-container-image-name $acrlogin/$dockerimagename # --app-insights $appinsightskey
-#Get connection string of the storage
-$connectionstring = az storage account show-connection-string --resource-group $nameGrp --name $storageName --query connectionString --output tsv
-#attach the connection string to the configuration of function
-az functionapp config appsettings set --name $appfunction --resource-group $nameGrp --settings AzureWebJobsStorage=$connectionstring
-#enable continous integration and get the hook url
-$hookurl = az functionapp deployment container config --enable-cd --query CI_CD_URL --output tsv --name $appfunction --resource-group $nameGrp
-#create webhook to the container  registry making push for all versions
-$dockerimageallversion = $dockerimage+":*"
-az acr webhook create -n $webhookname -r $acr --uri $hookurl --scope $dockerimageallversion --actions push delete
+After creating a Linux Azure function, we create a Webhook to pull the image from the container and send a sample message. 
 
 
+So if you have any questions please feel free to contact me. 
 
 
-Notes: for reference the complete script is in this project initProject.ps1
+:fa-envelope-square: eduardo@eduardo.mx 
+
+:fa-link: [eduardo.mx](http://eduardo.mx "eduardo.mx")
+
+:fa-twitter: [internetgdl](https://twitter.com/internetgdl "internetgdl")
+
+:fa-linkedin-square:  [https://www.linkedin.com/in/luis-eduardo-estrada/ ](https://www.linkedin.com/in/luis-eduardo-estrada/  "https://www.linkedin.com/in/luis-eduardo-estrada/ ")
+
+:fa-github-alt: [internetgdl](https://github.com/internetgdl "internetgdl")
+ 
+
+Notes: for reference the complete script is in this project under the file: [initProject.ps1](https://github.com/internetgdl/functionsdockerazure/blob/master/initProject.ps1 "initProject.ps1")
+
+ 
